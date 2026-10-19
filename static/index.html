@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Raleigh Tax Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Raleigh Tax Tracker</h1>
+    <p>Where does your city property tax go? <span id="fy"></span></p>
+  </header>
+
+  <main>
+    <section class="card" id="lookup">
+      <label for="address-input">Look up a Raleigh address</label>
+      <div class="search">
+        <input id="address-input" autocomplete="off" placeholder="e.g. 1518 Fayetteville St">
+        <ul id="suggestions" hidden></ul>
+      </div>
+      <div id="property" hidden></div>
+    </section>
+
+    <section class="card" id="inputs">
+      <label>Or pick a taxpayer class
+        <select id="class-select"></select>
+      </label>
+      <label>or home value ($)
+        <input id="value-input" type="number" min="0" step="1000" placeholder="391000">
+      </label>
+      <button id="go">Calculate</button>
+    </section>
+
+    <section class="card" id="summary">
+      <div><span class="label">City tax</span><span id="city-tax" class="big">-</span></div>
+      <div><span class="label">County tax</span><span id="county-tax" class="big">-</span></div>
+      <div><span class="label">Total</span><span id="total-tax" class="big">-</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Where your city tax goes</h2>
+      <canvas id="dept-chart"></canvas>
+    </section>
+
+    <section class="card">
+      <h2>Your share of capital projects</h2>
+      <ul id="projects"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Ask about your tax bill</h2>
+      <form id="ask-form">
+        <input id="question" placeholder="Why did my bill go up?">
+        <button>Ask</button>
+      </form>
+      <p id="answer"></p>
+    </section>
+  </main>
+
+  <footer>Water and sewer are funded by utility fees, not property tax, so they aren't included.</footer>
+  <script src="app.js"></script>
+</body>
+</html>

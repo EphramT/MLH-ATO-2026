@@ -1,0 +1,39 @@
+{
+  "_note": "PLACEHOLDER department/project numbers. Replace with real FY27 adopted budget data.",
+  "fiscal_year": "FY2027",
+  "rates_per_100": {
+    "city": 0.372,
+    "county": 0.5171
+  },
+  "_county_rate_note": "0.5171 is Wake FY2026. Verify the FY2027 rate.",
+  "totals": {
+    "total_budget": 1760000000,
+    "general_fund": 652800000,
+    "capital_budget": 503400000
+  },
+  "classes": [
+    { "id": "starter", "label": "Under $250k",          "value": 200000 },
+    { "id": "median",  "label": "$250k-$400k (median)", "value": 391000 },
+    { "id": "upper",   "label": "$400k-$700k",          "value": 550000 },
+    { "id": "high",    "label": "$700k+",               "value": 900000 },
+    { "id": "renter",  "label": "Renter",               "value": 250000, "renter": true }
+  ],
+  "departments": [
+    { "name": "Police",                       "amount": 140000000 },
+    { "name": "Fire",                         "amount": 90000000 },
+    { "name": "Parks, Recreation & Cultural", "amount": 80000000 },
+    { "name": "Transportation",               "amount": 60000000 },
+    { "name": "Solid Waste",                  "amount": 45000000 },
+    { "name": "Housing & Neighborhoods",      "amount": 30000000 },
+    { "name": "Planning & Development",       "amount": 35000000 },
+    { "name": "General Government",           "amount": 90000000 },
+    { "name": "Debt Service & Transfers",     "amount": 82800000 }
+  ],
+  "capital_projects": [
+    { "name": "Affordable Housing Bond Projects", "amount": 80000000 },
+    { "name": "Street Improvements",              "amount": 120000000 },
+    { "name": "Park Maintenance & Greenways",     "amount": 60000000 },
+    { "name": "Public Safety Facilities",         "amount": 45000000 },
+    { "name": "Transit (BRT)",                    "amount": 70000000 }
+  ]
+}

@@ -1,0 +1,64 @@
+:root {
+  --bg: #f5f6f8;
+  --card: #fff;
+  --text: #1c1f24;
+  --muted: #667085;
+  --accent: #c8102e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header, footer { padding: 24px 16px; max-width: 960px; margin: 0 auto; }
+header h1 { margin: 0; color: var(--accent); }
+header p, footer { color: var(--muted); }
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: grid;
+  gap: 16px;
+}
+
+.card { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.card h2 { margin-top: 0; font-size: 1.1rem; }
+
+#inputs { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+#inputs label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; color: var(--muted); }
+
+input, select, button { font: inherit; padding: 8px 12px; border: 1px solid #d0d5dd; border-radius: 8px; }
+button { background: var(--accent); color: #fff; border: none; cursor: pointer; }
+
+#summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+#summary div { display: flex; flex-direction: column; }
+.label { color: var(--muted); font-size: .85rem; }
+.big { font-size: 1.6rem; font-weight: 700; }
+
+#projects { list-style: none; padding: 0; margin: 0; }
+#projects li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+
+#lookup label { display: block; margin-bottom: 6px; font-weight: 600; }
+.search { position: relative; }
+.search input { width: 100%; }
+#suggestions {
+  position: absolute; left: 0; right: 0; top: 100%; z-index: 10;
+  list-style: none; margin: 4px 0 0; padding: 0;
+  background: var(--card); border: 1px solid #d0d5dd; border-radius: 8px;
+  max-height: 280px; overflow-y: auto;
+}
+#suggestions li { padding: 8px 12px; cursor: pointer; }
+#suggestions li:hover { background: var(--bg); }
+#suggestions li.empty { color: var(--muted); cursor: default; }
+#property { margin-top: 12px; line-height: 1.6; }
+.warn { color: #b54708; }
+
+#ask-form { display: flex; gap: 8px; }
+#ask-form input { flex: 1; }
+#answer { white-space: pre-wrap; }
