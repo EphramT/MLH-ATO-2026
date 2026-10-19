@@ -6,4 +6,8 @@ __pycache__/
 !.env.example
 data/raw/
 RULES.md
+.devenv
+devenv.*
+.direnv
+.vscode
 .DS_Store

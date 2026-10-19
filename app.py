@@ -9,7 +9,20 @@ import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, Response, jsonify, request, send_from_directory
 
-load_dotenv()
+#load_dotenv()
+
+SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+SENTRY_ENV = os.getenv("SENTRY_ENVIRONMENT", "development")
+SENTRY_RELEASE = os.getenv("SENTRY_RELEASE") or None
+
+# No DSN = Sentry is a no-op, so the app runs fine locally without it.
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    environment=SENTRY_ENV,
+    release=SENTRY_RELEASE,
+    traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "1.0")),
+    send_default_pii=False,
+)
 
 SENTRY_DSN = os.getenv("SENTRY_DSN", "")
 SENTRY_ENV = os.getenv("SENTRY_ENVIRONMENT", "development")
