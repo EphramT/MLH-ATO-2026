@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Raleigh Tax Tracker</title>
   <link rel="stylesheet" href="style.css">
+  <script src="/sentry-config.js"></script>
+  <script src="https://browser.sentry-cdn.com/8.42.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -15,22 +17,12 @@
 
   <main>
     <section class="card" id="lookup">
-      <label for="address-input">Look up a Raleigh address</label>
+      <label for="address-input">Enter a Raleigh address or a home value</label>
       <div class="search">
-        <input id="address-input" autocomplete="off" placeholder="e.g. 1518 Fayetteville St">
+        <input id="address-input" autocomplete="off" placeholder="e.g. 1518 Fayetteville St  or  $391,000">
         <ul id="suggestions" hidden></ul>
       </div>
-      <div id="property" hidden></div>
-    </section>
-
-    <section class="card" id="inputs">
-      <label>Or pick a taxpayer class
-        <select id="class-select"></select>
-      </label>
-      <label>or home value ($)
-        <input id="value-input" type="number" min="0" step="1000" placeholder="391000">
-      </label>
-      <button id="go">Calculate</button>
+      <div id="property"></div>
     </section>
 
     <section class="card" id="summary">
