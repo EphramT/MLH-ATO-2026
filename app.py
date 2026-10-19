@@ -5,10 +5,10 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-from dotenv import load_dotenv
+###from dotenv import load_dotenv
 from flask import Flask, jsonify, request, send_from_directory
 
-load_dotenv()
+#load_dotenv()
 
 ROOT = Path(__file__).resolve().parent
 BUDGET = json.loads((ROOT / "data" / "budget_fy27.json").read_text())
