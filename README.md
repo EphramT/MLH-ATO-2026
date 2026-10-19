@@ -45,3 +45,7 @@ python app.py                   # http://localhost:8080
 - [ ] Confirm the Wake County FY27 rate
 - [ ] Renter class: estimate the share of property tax passed through in rent
 - [ ] Set the GitHub repo in `.do/app.yaml` and deploy
+
+## RUNNING THE APP
+.venv\Scripts\python -m pip install -r requirements.txt
+.venv\Scripts\python app.py
