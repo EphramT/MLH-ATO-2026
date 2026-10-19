@@ -1,57 +1,102 @@
 const usd = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 const $ = (id) => document.getElementById(id);
 
+// Sentry: browser errors, page/API performance traced through to Flask, and a replay of
+// the session whenever an error happens. Skipped if no DSN is configured.
+if (window.Sentry && window.SENTRY_CONFIG?.dsn) {
+  Sentry.init({
+    ...window.SENTRY_CONFIG,
+    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+    tracesSampleRate: 1.0,
+    replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 1.0,
+  });
+}
+
+// fetch JSON; network failures and 5xx responses get reported with what the user was doing
+async function api(url, opts) {
+  try {
+    const r = await fetch(url, opts);
+    const data = await r.json();
+    if (r.status >= 500) {
+      window.Sentry?.addBreadcrumb({ category: "api", level: "error", message: `${r.status} ${url}` });
+    }
+    return data;
+  } catch (err) {
+    window.Sentry?.captureException(err, { extra: { url } });
+    return { error: "Couldn't reach the server. Check your connection and try again." };
+  }
+}
+
+const DEFAULT_VALUE = 391000; // median Raleigh assessed value
+
 let chart;
-let currentValue = 391000;
+let currentValue = DEFAULT_VALUE;
 let currentAddress = null;
 let searchTimer;
 
 async function init() {
-  const budget = await fetch("/api/budget").then((r) => r.json());
+  const budget = await api("/api/budget");
   $("fy").textContent = `(${budget.fiscal_year})`;
-  for (const c of budget.classes) {
-    const opt = new Option(c.label, c.id);
-    if (c.id === "median") opt.selected = true;
-    $("class-select").add(opt);
-  }
-  $("go").onclick = load;
-  $("class-select").onchange = () => { $("value-input").value = ""; load(); };
   $("ask-form").onsubmit = ask;
   $("address-input").oninput = () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(suggest, 250);
   };
-  load();
+  $("address-input").onkeydown = (e) => {
+    if (e.key !== "Enter") return;
+    const first = $("suggestions").querySelector("li[data-pick]");
+    if (first) first.click();
+  };
+  loadValue(DEFAULT_VALUE, "Median Raleigh home");
+}
+
+// "$391,000", "391000", "391k", "1.2m" -> number; anything with other letters -> null
+function parseValue(text) {
+  const m = text.trim().toLowerCase().replace(/[$,\s]/g, "").match(/^(\d+(?:\.\d+)?)(k|m)?$/);
+  if (!m) return null;
+  const n = parseFloat(m[1]) * (m[2] === "k" ? 1e3 : m[2] === "m" ? 1e6 : 1);
+  return n >= 10000 ? n : null; // short numbers are probably house numbers
+}
+
+function addOption(list, text, onPick) {
+  const li = document.createElement("li");
+  li.textContent = text;
+  li.dataset.pick = "";
+  li.onclick = () => {
+    list.hidden = true;
+    onPick();
+  };
+  list.append(li);
 }
 
 async function suggest() {
   const q = $("address-input").value.trim();
   const list = $("suggestions");
   if (q.length < 3) return (list.hidden = true);
-  const { results = [], error } = await fetch(`/api/search?q=${encodeURIComponent(q)}`).then((r) => r.json());
+
   list.innerHTML = "";
-  if (error || !results.length) {
-    list.innerHTML = `<li class="empty">${error || "No Raleigh addresses found"}</li>`;
-  }
+  const value = parseValue(q);
+  if (value) addOption(list, `Estimate for a ${usd(value)} home`, () => loadValue(value));
+
+  const { results = [], error } = await api(`/api/search?q=${encodeURIComponent(q)}`);
   for (const r of results) {
-    const li = document.createElement("li");
-    li.textContent = r.address + (r.type ? ` (${r.type})` : "");
-    li.onclick = () => {
+    addOption(list, r.address + (r.type ? ` (${r.type})` : ""), () => {
       $("address-input").value = r.address;
-      list.hidden = true;
       loadProperty(r.pin);
-    };
-    list.append(li);
+    });
+  }
+  if (!list.children.length) {
+    list.innerHTML = `<li class="empty">${error || "No Raleigh addresses found"}</li>`;
   }
   list.hidden = false;
 }
 
 async function loadProperty(pin) {
-  const data = await fetch(`/api/property?pin=${pin}`).then((r) => r.json());
+  const data = await api(`/api/property?pin=${pin}`);
   if (data.error) return alert(data.error);
   const p = data.property;
   currentAddress = p.address;
-  $("property").hidden = false;
   $("property").innerHTML = `
     <strong>${p.address}</strong>, ${p.city}<br>
     Assessed value: ${usd(data.assessed_value)} (land ${usd(p.land_value || 0)}, building ${usd(p.building_value || 0)})
@@ -61,13 +106,11 @@ async function loadProperty(pin) {
   render(data);
 }
 
-async function load() {
-  const v = $("value-input").value;
-  const qs = v ? `value=${encodeURIComponent(v)}` : `class=${$("class-select").value}`;
-  const data = await fetch(`/api/breakdown?${qs}`).then((r) => r.json());
+async function loadValue(value, label) {
+  const data = await api(`/api/breakdown?value=${value}`);
   if (data.error) return alert(data.error);
   currentAddress = null;
-  $("property").hidden = true;
+  $("property").innerHTML = `<strong>${label || "Home valued at " + usd(value)}</strong> (assessed value ${usd(value)})`;
   render(data);
 }
 
@@ -107,11 +150,11 @@ async function ask(e) {
   const question = $("question").value.trim();
   if (!question) return;
   $("answer").textContent = "Thinking...";
-  const res = await fetch("/api/ask", {
+  const res = await api("/api/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ question, value: currentValue, address: currentAddress }),
-  }).then((r) => r.json());
+  });
   $("answer").textContent = res.answer || res.error;
 }
 

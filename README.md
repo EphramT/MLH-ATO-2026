@@ -46,6 +46,18 @@ python app.py                   # http://localhost:8080
 - [ ] Renter class: estimate the share of property tax passed through in rent
 - [ ] Set the GitHub repo in `.do/app.yaml` and deploy
 
+## Sentry
+Set `SENTRY_DSN` in `.env` (Sentry > Project Settings > Client Keys). Leave it blank to turn Sentry off.
+
+What it tracks:
+- **Wake County outages:** failed parcel lookups are reported with the query that failed (tag `upstream:wake_county`), and users see a friendly message.
+- **Gemini failures and blocked answers:** reported with tag `upstream:gemini`.
+- **Performance:** every request is traced, with custom spans for `wake.parcels` and `gen_ai.generate`. Browser traces connect to the backend.
+- **Data quality:** warns when a taxable parcel has no assessed value, or when department totals don't add up to the general fund. Every event is tagged `budget.placeholder` while we're on placeholder data.
+- **Frontend:** JavaScript errors, plus a session replay whenever an error happens.
+
+To test it, visit `/api/debug-sentry` (turned off in production).
+
 ## RUNNING THE APP
 .venv\Scripts\python -m pip install -r requirements.txt
 .venv\Scripts\python app.py
