@@ -10,3 +10,4 @@ RULES.md
 devenv.*
 .direnv
 .vscode
+.DS_Store

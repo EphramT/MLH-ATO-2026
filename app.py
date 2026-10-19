@@ -5,8 +5,8 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-###from dotenv import load_dotenv
 import sentry_sdk
+from dotenv import load_dotenv
 from flask import Flask, Response, jsonify, request, send_from_directory
 
 #load_dotenv()
@@ -23,6 +23,24 @@ sentry_sdk.init(
     traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "1.0")),
     send_default_pii=False,
 )
+
+SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+SENTRY_ENV = os.getenv("SENTRY_ENVIRONMENT", "development")
+SENTRY_RELEASE = os.getenv("SENTRY_RELEASE") or None
+
+# No DSN = Sentry is a no-op, so the app runs fine locally without it.
+try:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        environment=SENTRY_ENV,
+        release=SENTRY_RELEASE,
+        traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "1.0")),
+        send_default_pii=False,
+    )
+except sentry_sdk.utils.BadDsn as e:
+    # A typo in SENTRY_DSN shouldn't take the whole app down
+    print(f"WARNING: Sentry disabled, SENTRY_DSN is invalid ({e})")
+    SENTRY_DSN = ""
 
 ROOT = Path(__file__).resolve().parent
 BUDGET = json.loads((ROOT / "data" / "budget_fy27.json").read_text())
@@ -120,6 +138,12 @@ def compute_breakdown(value: float) -> dict:
         "departments": departments,
         "capital_projects": projects,
     }
+
+
+@app.get("/healthz")
+def healthz():
+    """DigitalOcean App Platform health check."""
+    return {"ok": True}
 
 
 @app.get("/")

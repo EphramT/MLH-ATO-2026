@@ -1,17 +1,21 @@
-# DigitalOcean App Platform spec. Deploy with: doctl apps create --spec .do/app.yaml
+# DigitalOcean App Platform spec.
+# Dashboard: Apps > Create App > GitHub > EphramT/MLH-ATO-2026, then Settings > App Spec > paste this.
+# CLI: doctl apps create --spec .do/app.yaml
 name: raleigh-tax-tracker
 region: nyc
 services:
   - name: web
     github:
-      repo: YOUR_GITHUB_USER/YOUR_REPO # TODO
+      repo: EphramT/MLH-ATO-2026
       branch: main
       deploy_on_push: true
     environment_slug: python
-    run_command: gunicorn --bind 0.0.0.0:8080 app:app
+    run_command: gunicorn --bind 0.0.0.0:8080 --workers 2 --timeout 60 app:app
     http_port: 8080
-    instance_size_slug: basic-xxs
+    instance_size_slug: apps-s-1vcpu-0.5gb
     instance_count: 1
+    health_check:
+      http_path: /healthz
     envs:
       - key: GEMINI_API_KEY
         scope: RUN_TIME

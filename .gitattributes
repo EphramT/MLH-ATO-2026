@@ -1,0 +1,7 @@
+*.yml  linguist-detectable=true
+*.yaml linguist-detectable=true
+*.json linguist-detectable=true
+*.md   linguist-detectable=true
+*.csh  linguist-detectable=true
+*.fish linguist-detectable=true
+*.ps1  linguist-detectable=true
