@@ -70,16 +70,24 @@ function addOption(list, text, onPick) {
   list.append(li);
 }
 
+let searchSeq = 0;
+
 async function suggest() {
   const q = $("address-input").value.trim();
   const list = $("suggestions");
-  if (q.length < 3) return (list.hidden = true);
+  if (q.length < 3) {
+    searchSeq++; // cancel any in-flight request
+    return (list.hidden = true);
+  }
+
+  const seq = ++searchSeq;
+  const { results = [], error } = await api(`/api/search?q=${encodeURIComponent(q)}`);
+  if (seq !== searchSeq) return; // a newer search started; drop this response
 
   list.innerHTML = "";
   const value = parseValue(q);
   if (value) addOption(list, `Estimate for a ${usd(value)} home`, () => loadValue(value));
 
-  const { results = [], error } = await api(`/api/search?q=${encodeURIComponent(q)}`);
   for (const r of results) {
     addOption(list, r.address + (r.type ? ` (${r.type})` : ""), () => {
       $("address-input").value = r.address;
